@@ -1,0 +1,98 @@
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Receipt, 
+  LineChart, 
+  PieChart,
+  CreditCard,
+  Settings,
+  Bell,
+  HelpCircle,
+  ArrowLeftRight
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface NavItemProps {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, active }) => {
+  return (
+    <Link 
+      to={to} 
+      className={cn(
+        "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+        active 
+          ? "bg-sidebar-accent text-white" 
+          : "text-gray-300 hover:bg-sidebar-accent/50 hover:text-white"
+      )}
+    >
+      <Icon className="h-5 w-5" />
+      <span>{label}</span>
+    </Link>
+  );
+};
+
+const Sidebar: React.FC = () => {
+  // In a real app, you'd determine the active route from a router
+  const activeRoute = '/';
+  
+  return (
+    <div className="w-64 bg-sidebar flex flex-col h-full">
+      <div className="p-4">
+        <h2 className="text-white text-lg font-bold mb-6 mt-2 flex gap-2 items-center">
+          <PieChart className="h-6 w-6" />
+          <span>BudgetWise</span>
+        </h2>
+        
+        <nav className="space-y-1">
+          <NavItem 
+            to="/" 
+            icon={LayoutDashboard} 
+            label="Dashboard" 
+            active={activeRoute === '/'} 
+          />
+          <NavItem 
+            to="/transactions" 
+            icon={ArrowLeftRight} 
+            label="Transactions" 
+            active={activeRoute === '/transactions'} 
+          />
+          <NavItem 
+            to="/budgets" 
+            icon={PieChart} 
+            label="Budgets" 
+            active={activeRoute === '/budgets'} 
+          />
+          <NavItem 
+            to="/forecast" 
+            icon={LineChart} 
+            label="Forecasts" 
+            active={activeRoute === '/forecast'} 
+          />
+          <NavItem 
+            to="/accounts" 
+            icon={CreditCard} 
+            label="Accounts" 
+            active={activeRoute === '/accounts'} 
+          />
+        </nav>
+      </div>
+      
+      <div className="mt-auto p-4">
+        <nav className="space-y-1">
+          <NavItem to="/notifications" icon={Bell} label="Notifications" />
+          <NavItem to="/settings" icon={Settings} label="Settings" />
+          <NavItem to="/help" icon={HelpCircle} label="Help & Support" />
+        </nav>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
