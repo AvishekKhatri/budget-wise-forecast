@@ -87,9 +87,24 @@ const Sidebar: React.FC = () => {
       
       <div className="mt-auto p-4">
         <nav className="space-y-1">
-          <NavItem to="/notifications" icon={Bell} label="Notifications" />
-          <NavItem to="/settings" icon={Settings} label="Settings" />
-          <NavItem to="/help" icon={HelpCircle} label="Help & Support" />
+          <NavItem 
+            to="/notifications" 
+            icon={Bell} 
+            label="Notifications"
+            active={currentPath === '/notifications'} 
+          />
+          <NavItem 
+            to="/settings" 
+            icon={Settings} 
+            label="Settings"
+            active={currentPath === '/settings'} 
+          />
+          <NavItem 
+            to="/help" 
+            icon={HelpCircle} 
+            label="Help & Support"
+            active={currentPath === '/help'} 
+          />
         </nav>
       </div>
     </div>
