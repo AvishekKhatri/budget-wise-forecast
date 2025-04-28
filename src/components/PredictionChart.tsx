@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from 'recharts';
-import { monthlySpending, generatePredictedSpending } from '@/utils/dummyData';
+import { monthlySpending } from '@/utils/dummyData';
 import { generatePredictedSpending as predictSpending } from '@/utils/predictExpenses';
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {

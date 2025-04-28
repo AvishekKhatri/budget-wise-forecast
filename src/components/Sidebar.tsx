@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Receipt, 
@@ -39,8 +39,9 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, active }) => {
 };
 
 const Sidebar: React.FC = () => {
-  // In a real app, you'd determine the active route from a router
-  const activeRoute = '/';
+  // Use the location from react-router-dom to determine the active route
+  const location = useLocation();
+  const currentPath = location.pathname;
   
   return (
     <div className="w-64 bg-sidebar flex flex-col h-full">
@@ -55,31 +56,31 @@ const Sidebar: React.FC = () => {
             to="/" 
             icon={LayoutDashboard} 
             label="Dashboard" 
-            active={activeRoute === '/'} 
+            active={currentPath === '/'} 
           />
           <NavItem 
             to="/transactions" 
             icon={ArrowLeftRight} 
             label="Transactions" 
-            active={activeRoute === '/transactions'} 
+            active={currentPath === '/transactions'} 
           />
           <NavItem 
             to="/budgets" 
             icon={PieChart} 
             label="Budgets" 
-            active={activeRoute === '/budgets'} 
+            active={currentPath === '/budgets'} 
           />
           <NavItem 
             to="/forecast" 
             icon={LineChart} 
             label="Forecasts" 
-            active={activeRoute === '/forecast'} 
+            active={currentPath === '/forecast'} 
           />
           <NavItem 
             to="/accounts" 
             icon={CreditCard} 
             label="Accounts" 
-            active={activeRoute === '/accounts'} 
+            active={currentPath === '/accounts'} 
           />
         </nav>
       </div>

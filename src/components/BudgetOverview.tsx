@@ -39,9 +39,9 @@ const BudgetOverview: React.FC = () => {
                     value={Math.min(percentage, 100)} 
                     className={cn(
                       "h-2",
-                      isOverBudget ? "bg-finance-red-light" : "bg-muted"
+                      isOverBudget ? "bg-finance-red-light" : "bg-muted",
+                      isOverBudget ? "data-[value]:bg-finance-red" : `data-[value]:${text.replace('text', 'bg')}`
                     )}
-                    indicatorClassName={isOverBudget ? "bg-finance-red" : text.replace('text', 'bg')}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{percentage}%</span>
