@@ -54,7 +54,7 @@ const Notifications: React.FC = () => {
     {
       id: 1,
       title: 'Budget Alert',
-      description: 'You've reached 80% of your monthly grocery budget.',
+      description: "You've reached 80% of your monthly grocery budget.",
       time: '10 mins ago',
       type: 'warning' as const,
       read: false
@@ -70,7 +70,7 @@ const Notifications: React.FC = () => {
     {
       id: 3,
       title: 'Savings Goal Reached',
-      description: 'Congratulations! You've reached your vacation savings goal.',
+      description: "Congratulations! You've reached your vacation savings goal.",
       time: '1 day ago',
       type: 'success' as const,
       read: true
