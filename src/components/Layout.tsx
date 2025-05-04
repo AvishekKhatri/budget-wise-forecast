@@ -2,6 +2,8 @@
 import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { Menu, X } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar - hidden on mobile by default */}
-      <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex`}>
+      <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex transition-all duration-300`}>
         <Sidebar />
       </div>
       
@@ -23,12 +25,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         
         {/* Mobile sidebar toggle */}
         <div className="md:hidden p-4">
-          <button 
+          <Button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-md bg-white border border-gray-200 shadow-sm"
+            variant="outline"
+            size="icon"
+            aria-label={isSidebarOpen ? 'Close Menu' : 'Open Menu'}
           >
-            {isSidebarOpen ? 'Close Menu' : 'Open Menu'}
-          </button>
+            {isSidebarOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
+          </Button>
         </div>
         
         {/* Main scrollable content */}

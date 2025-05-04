@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Bell, CreditCard, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface NotificationItemProps {
   title: string;
@@ -10,9 +11,17 @@ interface NotificationItemProps {
   time: string;
   type: 'info' | 'warning' | 'success' | 'payment';
   read: boolean;
+  onMarkAsRead: () => void;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ title, description, time, type, read }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({ 
+  title, 
+  description, 
+  time, 
+  type, 
+  read,
+  onMarkAsRead 
+}) => {
   const getIcon = () => {
     switch (type) {
       case 'info':
@@ -29,7 +38,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ title, description,
   };
 
   return (
-    <div className={`p-4 border-b ${read ? 'bg-white' : 'bg-blue-50'}`}>
+    <div 
+      className={`p-4 border-b ${read ? 'bg-white' : 'bg-blue-50'}`}
+      onClick={!read ? onMarkAsRead : undefined}
+    >
       <div className="flex gap-3">
         <div className="flex-shrink-0 mt-1">
           {getIcon()}
@@ -50,7 +62,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ title, description,
 };
 
 const Notifications: React.FC = () => {
-  const notifications = [
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: 'Budget Alert',
@@ -83,14 +96,43 @@ const Notifications: React.FC = () => {
       type: 'info' as const,
       read: true
     }
-  ];
+  ]);
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(notification => ({
+      ...notification,
+      read: true
+    })));
+    
+    toast({
+      title: "Notifications updated",
+      description: "All notifications have been marked as read."
+    });
+  };
+
+  const markAsRead = (id: number) => {
+    setNotifications(notifications.map(notification => 
+      notification.id === id 
+        ? { ...notification, read: true } 
+        : notification
+    ));
+  };
+
+  const hasUnreadNotifications = notifications.some(notification => !notification.read);
 
   return (
     <Layout>
       <div className="space-y-6 mb-10">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Notifications</h1>
-          <Button variant="outline" size="sm">Mark all as read</Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={markAllAsRead}
+            disabled={!hasUnreadNotifications}
+          >
+            Mark all as read
+          </Button>
         </div>
         
         <p className="text-muted-foreground">Stay updated with alerts about your finances</p>
@@ -105,6 +147,7 @@ const Notifications: React.FC = () => {
                 time={notification.time}
                 type={notification.type}
                 read={notification.read}
+                onMarkAsRead={() => markAsRead(notification.id)}
               />
             ))
           ) : (

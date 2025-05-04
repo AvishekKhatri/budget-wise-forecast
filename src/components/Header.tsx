@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Bell, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Bell, User, Settings, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    // In a real app, you would handle actual logout logic here
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out."
+    });
+    
+    // Redirect to home page after logout
+    navigate('/');
+  };
+  
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-10">
       <h1 className="text-xl md:text-2xl font-bold text-finance-purple">
@@ -39,20 +54,26 @@ const Header: React.FC = () => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/profile">
+              <Link to="/profile" className="flex items-center w-full cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/settings">Settings</Link>
+              <Link to="/settings" className="flex items-center w-full cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} className="flex items-center cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
