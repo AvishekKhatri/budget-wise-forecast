@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, Settings, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,26 +13,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUser } from '@/contexts/UserContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { userProfile, logout } = useUser();
 
   const handleLogout = () => {
-    setIsLoggingOut(true);
-    
-    // Simulate logout process with timeout
+    // Perform logout
     setTimeout(() => {
-      // In a real app, you would handle actual logout logic here
-      // such as clearing auth tokens, user session, etc.
+      logout();
       
       toast({
         title: "Logged out",
         description: "You have been successfully logged out."
       });
-      
-      setIsLoggingOut(false);
       
       // Redirect to home page after logout
       navigate('/', { replace: true });
@@ -59,13 +55,18 @@ const Header: React.FC = () => {
             <Button variant="ghost" className="relative p-0" size="icon">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-finance-purple-light text-finance-purple">
-                  JD
+                  {userProfile.initials}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <div>
+                <div className="font-medium">{userProfile.name}</div>
+                <div className="text-xs text-muted-foreground">{userProfile.email}</div>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link to="/profile" className="flex items-center w-full cursor-pointer">
@@ -82,11 +83,10 @@ const Header: React.FC = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleLogout} 
-              disabled={isLoggingOut}
               className="flex items-center cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

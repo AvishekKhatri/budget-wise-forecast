@@ -8,37 +8,23 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
-
-interface ProfileFormValues {
-  name: string;
-  email: string;
-  phone: string;
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-}
+import { useUser, UserProfile } from "@/contexts/UserContext";
 
 const Profile: React.FC = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    emailNotifications: true,
-    smsNotifications: true
-  });
+  const { userProfile, updateUserProfile } = useUser();
   
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
-    defaultValues: profileData
+  const { register, handleSubmit, formState: { errors } } = useForm<UserProfile>({
+    defaultValues: userProfile
   });
 
-  const onSubmit = (data: ProfileFormValues) => {
+  const onSubmit = (data: UserProfile) => {
     setIsSubmitting(true);
     
-    // Simulate API call with timeout
+    // Update global user state with form data
     setTimeout(() => {
-      // Update local state with form data
-      setProfileData(data);
+      updateUserProfile(data);
       
       // Show success message
       toast({
@@ -62,7 +48,7 @@ const Profile: React.FC = () => {
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-24 w-24">
                   <AvatarFallback className="bg-finance-purple-light text-finance-purple text-2xl">
-                    {profileData.name.split(' ').map(n => n[0]).join('')}
+                    {userProfile.initials}
                   </AvatarFallback>
                 </Avatar>
                 <Button variant="outline" size="sm" type="button">Change Picture</Button>
