@@ -4,9 +4,8 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
-import { Navigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,11 +15,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
   const { isLoggedIn } = useUser();
-  
-  // Redirect if not logged in
-  if (!isLoggedIn) {
-    return <Navigate to="/" replace />;
-  }
   
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -48,6 +42,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+  
+  // Instead of early return with Navigate, render conditionally
+  if (!isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
   
   return (
     <div className="flex h-screen bg-gray-50">
