@@ -1,21 +1,48 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
+import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+  
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
+  
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Call once on mount
+    handleResize();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar - hidden on mobile by default */}
-      <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex transition-all duration-300`}>
+      <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block fixed md:relative z-20 h-full transition-all duration-300`}>
         <Sidebar />
       </div>
       

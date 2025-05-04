@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,22 +19,35 @@ interface ProfileFormValues {
 
 const Profile: React.FC = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: "John Doe",
+    email: "john.doe@example.com",
+    phone: "(555) 123-4567",
+    emailNotifications: true,
+    smsNotifications: true
+  });
+  
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
-    defaultValues: {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "(555) 123-4567",
-      emailNotifications: true,
-      smsNotifications: true
-    }
+    defaultValues: profileData
   });
 
   const onSubmit = (data: ProfileFormValues) => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully."
-    });
-    console.log("Profile data:", data);
+    setIsSubmitting(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      // Update local state with form data
+      setProfileData(data);
+      
+      // Show success message
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully."
+      });
+      
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -49,7 +62,7 @@ const Profile: React.FC = () => {
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-24 w-24">
                   <AvatarFallback className="bg-finance-purple-light text-finance-purple text-2xl">
-                    JD
+                    {profileData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <Button variant="outline" size="sm" type="button">Change Picture</Button>
@@ -113,7 +126,9 @@ const Profile: React.FC = () => {
                   </div>
                 </div>
                 
-                <Button type="submit" className="mt-6">Save Changes</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
             </div>
           </form>

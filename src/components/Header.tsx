@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, Settings, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,16 +17,26 @@ import {
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = () => {
-    // In a real app, you would handle actual logout logic here
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out."
-    });
+    setIsLoggingOut(true);
     
-    // Redirect to home page after logout
-    navigate('/');
+    // Simulate logout process with timeout
+    setTimeout(() => {
+      // In a real app, you would handle actual logout logic here
+      // such as clearing auth tokens, user session, etc.
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out."
+      });
+      
+      setIsLoggingOut(false);
+      
+      // Redirect to home page after logout
+      navigate('/', { replace: true });
+    }, 500);
   };
   
   return (
@@ -70,9 +80,13 @@ const Header: React.FC = () => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="flex items-center cursor-pointer">
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              disabled={isLoggingOut}
+              className="flex items-center cursor-pointer"
+            >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

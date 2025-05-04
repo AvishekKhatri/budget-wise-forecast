@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -9,16 +9,35 @@ import { useToast } from "@/hooks/use-toast";
 
 const Settings: React.FC = () => {
   const { toast } = useToast();
-  const [emailNotifications, setEmailNotifications] = React.useState(true);
-  const [appNotifications, setAppNotifications] = React.useState(true);
-  const [weeklyReports, setWeeklyReports] = React.useState(false);
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // State for settings
+  const [settings, setSettings] = useState({
+    emailNotifications: true,
+    appNotifications: true,
+    weeklyReports: false,
+    darkMode: false
+  });
+  
+  const handleToggle = (setting: keyof typeof settings) => {
+    setSettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
+  };
   
   const handleSaveSettings = () => {
-    toast({
-      title: "Settings saved",
-      description: "Your settings have been saved successfully."
-    });
+    setIsSaving(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      toast({
+        title: "Settings saved",
+        description: "Your settings have been saved successfully."
+      });
+      
+      setIsSaving(false);
+    }, 800);
   };
   
   return (
@@ -35,27 +54,27 @@ const Settings: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="email-notifications">Email Notifications</Label>
+                <Label htmlFor="email-notifications" className="cursor-pointer">Email Notifications</Label>
                 <Switch 
                   id="email-notifications" 
-                  checked={emailNotifications}
-                  onCheckedChange={setEmailNotifications}
+                  checked={settings.emailNotifications}
+                  onCheckedChange={() => handleToggle('emailNotifications')}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="app-notifications">App Notifications</Label>
+                <Label htmlFor="app-notifications" className="cursor-pointer">App Notifications</Label>
                 <Switch 
                   id="app-notifications" 
-                  checked={appNotifications}
-                  onCheckedChange={setAppNotifications}
+                  checked={settings.appNotifications}
+                  onCheckedChange={() => handleToggle('appNotifications')}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="weekly-reports">Weekly Budget Reports</Label>
+                <Label htmlFor="weekly-reports" className="cursor-pointer">Weekly Budget Reports</Label>
                 <Switch 
                   id="weekly-reports" 
-                  checked={weeklyReports}
-                  onCheckedChange={setWeeklyReports}
+                  checked={settings.weeklyReports}
+                  onCheckedChange={() => handleToggle('weeklyReports')}
                 />
               </div>
             </CardContent>
@@ -68,17 +87,22 @@ const Settings: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="dark-mode">Dark Mode</Label>
+                <Label htmlFor="dark-mode" className="cursor-pointer">Dark Mode</Label>
                 <Switch 
                   id="dark-mode" 
-                  checked={darkMode}
-                  onCheckedChange={setDarkMode}
+                  checked={settings.darkMode}
+                  onCheckedChange={() => handleToggle('darkMode')}
                 />
               </div>
             </CardContent>
           </Card>
           
-          <Button onClick={handleSaveSettings}>Save Settings</Button>
+          <Button 
+            onClick={handleSaveSettings} 
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : "Save Settings"}
+          </Button>
         </div>
       </div>
     </Layout>

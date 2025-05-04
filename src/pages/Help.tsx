@@ -1,32 +1,41 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 
 const Help: React.FC = () => {
   const { toast } = useToast();
-  const [supportMessage, setSupportMessage] = React.useState('');
+  const [supportMessage, setSupportMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleSupportSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (supportMessage.trim()) {
-      toast({
-        title: "Support request sent",
-        description: "We'll get back to you soon!"
-      });
-      setSupportMessage('');
-    } else {
+    
+    if (!supportMessage.trim()) {
       toast({
         title: "Error",
         description: "Please enter a message",
         variant: "destructive"
       });
+      return;
     }
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      toast({
+        title: "Support request sent",
+        description: "We'll get back to you soon!"
+      });
+      setSupportMessage('');
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -86,9 +95,12 @@ const Help: React.FC = () => {
                       className="min-h-[120px]"
                       value={supportMessage}
                       onChange={(e) => setSupportMessage(e.target.value)}
+                      disabled={isSubmitting}
                     />
                   </div>
-                  <Button type="submit">Send Message</Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending..." : "Send Message"}
+                  </Button>
                 </form>
               </CardContent>
             </Card>
