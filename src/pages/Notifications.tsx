@@ -1,9 +1,17 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
-import { Bell, CreditCard, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Bell, CreditCard, AlertCircle, CheckCircle2, Clock, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from "@/components/ui/dialog";
 
 interface NotificationItemProps {
   title: string;
@@ -12,6 +20,7 @@ interface NotificationItemProps {
   type: 'info' | 'warning' | 'success' | 'payment';
   read: boolean;
   onMarkAsRead: () => void;
+  onClick: () => void;
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ 
@@ -20,7 +29,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   time, 
   type, 
   read,
-  onMarkAsRead 
+  onMarkAsRead,
+  onClick
 }) => {
   const getIcon = () => {
     switch (type) {
@@ -37,10 +47,17 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     }
   };
 
+  const handleClick = () => {
+    if (!read) {
+      onMarkAsRead();
+    }
+    onClick();
+  };
+
   return (
     <div 
-      className={`p-4 border-b ${read ? 'bg-white' : 'bg-blue-50'}`}
-      onClick={!read ? onMarkAsRead : undefined}
+      className={`p-4 border-b ${read ? 'bg-white' : 'bg-blue-50'} cursor-pointer hover:bg-gray-50`}
+      onClick={handleClick}
     >
       <div className="flex gap-3">
         <div className="flex-shrink-0 mt-1">
@@ -61,8 +78,19 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   );
 };
 
+interface NotificationDetail {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  type: 'info' | 'warning' | 'success' | 'payment';
+  content: React.ReactNode;
+}
+
 const Notifications: React.FC = () => {
   const { toast } = useToast();
+  const [selectedNotification, setSelectedNotification] = useState<NotificationDetail | null>(null);
+  
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -70,7 +98,31 @@ const Notifications: React.FC = () => {
       description: "You've reached 80% of your monthly grocery budget.",
       time: '10 mins ago',
       type: 'warning' as const,
-      read: false
+      read: false,
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-6 w-6 text-yellow-500" />
+              <div>
+                <h3 className="font-semibold">Budget Alert: Groceries</h3>
+                <p className="text-sm text-gray-500">Category: Food & Groceries</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p>You've spent <span className="font-semibold">$240</span> out of your <span className="font-semibold">$300</span> monthly grocery budget.</p>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '80%' }}></div>
+            </div>
+            <p className="text-sm text-gray-500">$60 remaining for the next 8 days</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">View Budget</Button>
+            <Button size="sm">Adjust Budget</Button>
+          </div>
+        </div>
+      )
     },
     {
       id: 2,
@@ -78,7 +130,39 @@ const Notifications: React.FC = () => {
       description: 'Your payment of $45.00 to Netflix has been processed.',
       time: '2 hours ago',
       type: 'payment' as const,
-      read: false
+      read: false,
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-6 w-6 text-purple-500" />
+              <div>
+                <h3 className="font-semibold">Payment Details</h3>
+                <p className="text-sm text-gray-500">Transaction ID: #NF289475</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700">Merchant</span>
+              <span className="font-medium">Netflix, Inc.</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700">Amount</span>
+              <span className="font-medium">$45.00</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700">Date</span>
+              <span className="font-medium">May 4, 2025</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700">Payment Method</span>
+              <span className="font-medium">Visa ending in 4242</span>
+            </div>
+          </div>
+          <Button className="w-full">View Transaction History</Button>
+        </div>
+      )
     },
     {
       id: 3,
@@ -86,7 +170,31 @@ const Notifications: React.FC = () => {
       description: "Congratulations! You've reached your vacation savings goal.",
       time: '1 day ago',
       type: 'success' as const,
-      read: true
+      read: true,
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-green-500" />
+              <div>
+                <h3 className="font-semibold">Goal Achieved!</h3>
+                <p className="text-sm text-gray-500">Vacation Fund</p>
+              </div>
+            </div>
+          </div>
+          <div className="text-center py-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-4">
+              <CheckCircle2 className="h-10 w-10 text-green-500" />
+            </div>
+            <h3 className="text-lg font-semibold">Congratulations!</h3>
+            <p className="text-gray-600 mt-1">You've successfully saved $3,000 for your vacation!</p>
+          </div>
+          <div className="flex justify-center gap-2">
+            <Button variant="outline" size="sm">Set New Goal</Button>
+            <Button size="sm">Transfer Funds</Button>
+          </div>
+        </div>
+      )
     },
     {
       id: 4,
@@ -94,7 +202,31 @@ const Notifications: React.FC = () => {
       description: 'Check out our new spending predictions feature!',
       time: '3 days ago',
       type: 'info' as const,
-      read: true
+      read: true,
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-3">
+              <Bell className="h-6 w-6 text-blue-500" />
+              <div>
+                <h3 className="font-semibold">New Feature</h3>
+                <p className="text-sm text-gray-500">Spending Predictions</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p>We're excited to introduce our new <strong>Spending Predictions</strong> feature that uses AI to help you forecast your expenses.</p>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>View projected expenses for the coming months</li>
+              <li>Get alerts for potential budget overruns</li>
+              <li>Make smarter financial decisions with AI insights</li>
+            </ul>
+          </div>
+          <div className="mt-4">
+            <Button>Try It Now</Button>
+          </div>
+        </div>
+      )
     }
   ]);
 
@@ -116,6 +248,10 @@ const Notifications: React.FC = () => {
         ? { ...notification, read: true } 
         : notification
     ));
+  };
+
+  const openNotificationDetail = (notification: NotificationDetail) => {
+    setSelectedNotification(notification);
   };
 
   const hasUnreadNotifications = notifications.some(notification => !notification.read);
@@ -148,6 +284,7 @@ const Notifications: React.FC = () => {
                 type={notification.type}
                 read={notification.read}
                 onMarkAsRead={() => markAsRead(notification.id)}
+                onClick={() => openNotificationDetail(notification)}
               />
             ))
           ) : (
@@ -158,6 +295,25 @@ const Notifications: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Notification Detail Dialog */}
+      <Dialog open={selectedNotification !== null} onOpenChange={(open) => !open && setSelectedNotification(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{selectedNotification?.title}</DialogTitle>
+            <DialogDescription className="flex justify-between items-center">
+              <span>{selectedNotification?.time}</span>
+              <DialogClose className="absolute right-4 top-4">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            {selectedNotification?.content}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

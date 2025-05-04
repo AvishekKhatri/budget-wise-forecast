@@ -43,9 +43,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, []);
   
-  // Instead of early return with Navigate, render conditionally
   if (!isLoggedIn) {
-    return <Navigate to="/" replace />;
+    return (
+      <div className="h-screen bg-gray-50">
+        <Header />
+        <div className="p-6 max-w-2xl mx-auto mt-12 text-center">
+          <h1 className="text-3xl font-bold mb-4">Welcome to BudgetWise</h1>
+          <p className="text-gray-600 mb-8">Please log in or create an account to access this page.</p>
+        </div>
+      </div>
+    );
   }
   
   return (
