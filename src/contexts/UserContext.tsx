@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface UserProfile {
@@ -19,12 +18,12 @@ interface UserContextType {
 }
 
 const defaultUserProfile: UserProfile = {
-  name: "John Doe",
+  name: "Avishek Khatri",
   email: "john.doe@example.com",
   phone: "(555) 123-4567",
   emailNotifications: true,
   smsNotifications: true,
-  initials: "JD"
+  initials: "AK"
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from '@/components/ui/progress';
 import { ArrowUp, ArrowDown, DollarSign, TrendingUp } from 'lucide-react';
 import { summaryData } from '@/utils/dummyData';
+import { useUser } from '@/contexts/UserContext';
 
 const StatCard: React.FC<{
   title: string;
@@ -42,6 +43,7 @@ const StatCard: React.FC<{
 };
 
 const Dashboard: React.FC = () => {
+  const { userProfile } = useUser();
   const { income, expenses, remaining, averageDailySpend } = summaryData;
   
   // Calculate budget progress
@@ -52,7 +54,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, John</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {userProfile.name.split(' ')[0]}</h1>
         <p className="text-muted-foreground">Here's an overview of your finances</p>
       </div>
       
