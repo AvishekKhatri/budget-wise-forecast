@@ -5,7 +5,7 @@ import Sidebar from './Sidebar';
 import AuthPage from './AuthPage';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 
 interface LayoutProps {
@@ -16,6 +16,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
   const { isLoggedIn } = useUser();
+  const navigate = useNavigate();
+  
+  // Redirect to profile after login if coming from AuthPage
+  useEffect(() => {
+    if (isLoggedIn && location.pathname === '/') {
+      navigate('/profile');
+    }
+  }, [isLoggedIn, location.pathname, navigate]);
   
   // Close sidebar on mobile when route changes
   useEffect(() => {

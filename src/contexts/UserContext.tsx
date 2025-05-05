@@ -31,7 +31,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Start as logged out
 
   const updateUserProfile = (profile: Partial<UserProfile>) => {
     setUserProfile(prevProfile => {

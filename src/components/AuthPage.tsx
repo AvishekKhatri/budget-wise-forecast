@@ -24,7 +24,7 @@ const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useUser();
+  const { login, updateUserProfile } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +32,14 @@ const AuthPage: React.FC = () => {
 
     // Simulate authentication
     setTimeout(() => {
+      // If user is signing up, update their profile info with form data
+      if (activeTab === 'signup' && name && email) {
+        updateUserProfile({
+          name,
+          email,
+        });
+      }
+      
       login();
       setIsLoading(false);
       toast({
@@ -40,24 +48,24 @@ const AuthPage: React.FC = () => {
           ? "Welcome back to BudgetWise!" 
           : "Your account has been created successfully."
       });
-      navigate('/');
+      navigate('/profile'); // Navigate to profile page after login/signup
     }, 1000);
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Left side with image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-finance-purple-light items-center justify-center p-12">
-        <div className="relative w-full max-w-lg">
+      {/* Left side with image - adjusted to fill height */}
+      <div className="hidden lg:flex lg:w-1/2 bg-finance-purple-light items-center justify-center p-0">
+        <div className="w-full h-full relative">
           <img 
             src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800" 
             alt="Finance management" 
-            className="rounded-lg shadow-xl object-cover w-full h-auto"
+            className="object-cover w-full h-full"
           />
-          <div className="absolute inset-0 bg-finance-purple/10 rounded-lg"></div>
-          <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-finance-purple/80 to-transparent rounded-b-lg">
-            <h2 className="text-2xl font-bold text-white mb-2">Take control of your finances</h2>
-            <p className="text-white/90">Track, manage, and optimize your spending with BudgetWise</p>
+          <div className="absolute inset-0 bg-finance-purple/20"></div>
+          <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-finance-purple/80 to-transparent">
+            <h2 className="text-3xl font-bold text-white mb-3">Take control of your finances</h2>
+            <p className="text-white/90 text-lg">Track, manage, and optimize your spending with BudgetWise</p>
           </div>
         </div>
       </div>

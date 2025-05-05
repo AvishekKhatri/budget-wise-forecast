@@ -30,7 +30,8 @@ const Header: React.FC = () => {
         description: "You have been successfully logged out."
       });
       
-      // Stay on current page, AuthPage will show
+      // AuthPage will be shown after logout
+      navigate('/');
     }, 500);
   };
   
