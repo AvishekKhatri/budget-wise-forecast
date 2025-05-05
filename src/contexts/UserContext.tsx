@@ -20,8 +20,8 @@ interface UserContextType {
 
 const defaultUserProfile: UserProfile = {
   name: "Avishek Khatri",
-  email: "john.doe@example.com",
-  phone: "(555) 123-4567",
+  email: "avishek.khatri@example.com",
+  phone: "(555) 987-6543",
   emailNotifications: true,
   smsNotifications: true,
   initials: "AK"

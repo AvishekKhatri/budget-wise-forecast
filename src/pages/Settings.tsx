@@ -1,23 +1,34 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/contexts/UserContext";
 
 const Settings: React.FC = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const { userProfile, updateUserProfile } = useUser();
   
-  // State for settings
+  // State for settings, initialized with userProfile values
   const [settings, setSettings] = useState({
-    emailNotifications: true,
+    emailNotifications: userProfile.emailNotifications,
     appNotifications: true,
     weeklyReports: false,
     darkMode: false
   });
+  
+  // Update settings when userProfile changes
+  useEffect(() => {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      emailNotifications: userProfile.emailNotifications,
+      appNotifications: true // Assuming we don't have this in userProfile yet
+    }));
+  }, [userProfile]);
   
   const handleToggle = (setting: keyof typeof settings) => {
     setSettings(prev => ({
@@ -28,6 +39,12 @@ const Settings: React.FC = () => {
   
   const handleSaveSettings = () => {
     setIsSaving(true);
+    
+    // Update user profile with notification settings
+    updateUserProfile({
+      emailNotifications: settings.emailNotifications,
+      smsNotifications: settings.appNotifications
+    });
     
     // Simulate API call with timeout
     setTimeout(() => {
