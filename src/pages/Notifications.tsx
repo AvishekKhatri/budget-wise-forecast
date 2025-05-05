@@ -12,6 +12,7 @@ import {
   DialogDescription,
   DialogClose
 } from "@/components/ui/dialog";
+import { useNavigate } from 'react-router-dom';
 
 interface NotificationItemProps {
   title: string;
@@ -85,11 +86,75 @@ interface NotificationDetail {
   time: string;
   type: 'info' | 'warning' | 'success' | 'payment';
   content: React.ReactNode;
+  actions?: {
+    primary?: {
+      label: string;
+      action: () => void;
+    };
+    secondary?: {
+      label: string;
+      action: () => void;
+    };
+  };
 }
 
 const Notifications: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedNotification, setSelectedNotification] = useState<NotificationDetail | null>(null);
+  
+  // Actions for notification buttons
+  const handleViewBudget = () => {
+    navigate('/budgets');
+    toast({
+      title: "Navigation",
+      description: "Navigating to budget page"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleAdjustBudget = () => {
+    navigate('/budgets');
+    toast({
+      title: "Adjust Budget",
+      description: "Opening budget adjustment interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleViewTransaction = () => {
+    navigate('/transactions');
+    toast({
+      title: "Navigation",
+      description: "Viewing transaction history"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleSetNewGoal = () => {
+    toast({
+      title: "New Goal",
+      description: "Opening goal setting interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleTransferFunds = () => {
+    toast({
+      title: "Transfer Funds",
+      description: "Opening fund transfer interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleTryNewFeature = () => {
+    navigate('/forecast');
+    toast({
+      title: "New Feature",
+      description: "Trying out spending predictions"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
   
   const [notifications, setNotifications] = useState([
     {
@@ -99,6 +164,16 @@ const Notifications: React.FC = () => {
       time: '10 mins ago',
       type: 'warning' as const,
       read: false,
+      actions: {
+        primary: {
+          label: "Adjust Budget",
+          action: handleAdjustBudget
+        },
+        secondary: {
+          label: "View Budget",
+          action: handleViewBudget
+        }
+      },
       content: (
         <div className="space-y-4">
           <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
@@ -117,10 +192,6 @@ const Notifications: React.FC = () => {
             </div>
             <p className="text-sm text-gray-500">$60 remaining for the next 8 days</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">View Budget</Button>
-            <Button size="sm">Adjust Budget</Button>
-          </div>
         </div>
       )
     },
@@ -131,6 +202,12 @@ const Notifications: React.FC = () => {
       time: '2 hours ago',
       type: 'payment' as const,
       read: false,
+      actions: {
+        primary: {
+          label: "View Transaction History",
+          action: handleViewTransaction
+        }
+      },
       content: (
         <div className="space-y-4">
           <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
@@ -160,7 +237,6 @@ const Notifications: React.FC = () => {
               <span className="font-medium">Visa ending in 4242</span>
             </div>
           </div>
-          <Button className="w-full">View Transaction History</Button>
         </div>
       )
     },
@@ -171,6 +247,16 @@ const Notifications: React.FC = () => {
       time: '1 day ago',
       type: 'success' as const,
       read: true,
+      actions: {
+        primary: {
+          label: "Transfer Funds",
+          action: handleTransferFunds
+        },
+        secondary: {
+          label: "Set New Goal",
+          action: handleSetNewGoal
+        }
+      },
       content: (
         <div className="space-y-4">
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
@@ -189,10 +275,6 @@ const Notifications: React.FC = () => {
             <h3 className="text-lg font-semibold">Congratulations!</h3>
             <p className="text-gray-600 mt-1">You've successfully saved $3,000 for your vacation!</p>
           </div>
-          <div className="flex justify-center gap-2">
-            <Button variant="outline" size="sm">Set New Goal</Button>
-            <Button size="sm">Transfer Funds</Button>
-          </div>
         </div>
       )
     },
@@ -203,6 +285,12 @@ const Notifications: React.FC = () => {
       time: '3 days ago',
       type: 'info' as const,
       read: true,
+      actions: {
+        primary: {
+          label: "Try It Now",
+          action: handleTryNewFeature
+        }
+      },
       content: (
         <div className="space-y-4">
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -221,9 +309,6 @@ const Notifications: React.FC = () => {
               <li>Get alerts for potential budget overruns</li>
               <li>Make smarter financial decisions with AI insights</li>
             </ul>
-          </div>
-          <div className="mt-4">
-            <Button>Try It Now</Button>
           </div>
         </div>
       )
@@ -311,6 +396,29 @@ const Notifications: React.FC = () => {
           </DialogHeader>
           <div className="mt-2">
             {selectedNotification?.content}
+            
+            {/* Action buttons rendered separately from content */}
+            {selectedNotification?.actions && (
+              <div className="flex justify-center gap-2 mt-4">
+                {selectedNotification.actions.secondary && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={selectedNotification.actions.secondary.action}
+                  >
+                    {selectedNotification.actions.secondary.label}
+                  </Button>
+                )}
+                {selectedNotification.actions.primary && (
+                  <Button 
+                    size="sm"
+                    onClick={selectedNotification.actions.primary.action}
+                  >
+                    {selectedNotification.actions.primary.label}
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
