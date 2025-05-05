@@ -54,9 +54,9 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Left side with image - adjusted to fill height */}
-      <div className="hidden lg:flex lg:w-1/2 bg-finance-purple-light items-center justify-center p-0">
-        <div className="w-full h-full relative">
+      {/* Left side with image - adjusted to fill the entire page height and width */}
+      <div className="hidden lg:block lg:w-1/2 bg-finance-purple-light h-full">
+        <div className="w-full h-screen relative">
           <img 
             src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800" 
             alt="Finance management" 
@@ -110,7 +110,7 @@ const AuthPage: React.FC = () => {
                   <Label htmlFor="name">Full Name</Label>
                   <Input 
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Full Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
@@ -135,6 +135,7 @@ const AuthPage: React.FC = () => {
                 <Input 
                   id="password"
                   type="password"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
