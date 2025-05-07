@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Bell, CreditCard, AlertCircle, CheckCircle2, Clock, X } from 'lucide-react';
@@ -84,15 +85,36 @@ interface NotificationDetail {
   description: string;
   time: string;
   type: 'info' | 'warning' | 'success' | 'payment';
+  read: boolean;
   content: React.ReactNode;
   actions?: {
     primary?: {
       label: string;
-      action: () => void;
+      action: string; // Changed to string identifier
     };
     secondary?: {
       label: string;
-      action: () => void;
+      action: string; // Changed to string identifier
+    };
+  };
+}
+
+// Define serializable notification type without React.ReactNode
+interface SerializableNotification {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  type: 'info' | 'warning' | 'success' | 'payment';
+  read: boolean;
+  actions?: {
+    primary?: {
+      label: string;
+      action: string;
+    };
+    secondary?: {
+      label: string;
+      action: string;
     };
   };
 }
@@ -101,88 +123,60 @@ const Notifications: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Define these functions BEFORE they're used in the initial state
-  const handleViewBudget = () => {
-    navigate('/budgets');
-    toast({
-      title: "Navigation",
-      description: "Navigating to budget page"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleAdjustBudget = () => {
-    navigate('/budgets');
-    toast({
-      title: "Adjust Budget",
-      description: "Opening budget adjustment interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleViewTransaction = () => {
-    navigate('/transactions');
-    toast({
-      title: "Navigation",
-      description: "Viewing transaction history"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleSetNewGoal = () => {
-    toast({
-      title: "New Goal",
-      description: "Opening goal setting interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleTransferFunds = () => {
-    toast({
-      title: "Transfer Funds",
-      description: "Opening fund transfer interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleTryNewFeature = () => {
-    navigate('/forecast');
-    toast({
-      title: "New Feature",
-      description: "Trying out spending predictions"
-    });
+  // Define action handling function
+  const handleNotificationAction = (actionType: string) => {
+    switch (actionType) {
+      case 'viewBudget':
+        navigate('/budgets');
+        toast({
+          title: "Navigation",
+          description: "Navigating to budget page"
+        });
+        break;
+      case 'adjustBudget':
+        navigate('/budgets');
+        toast({
+          title: "Adjust Budget",
+          description: "Opening budget adjustment interface"
+        });
+        break;
+      case 'viewTransaction':
+        navigate('/transactions');
+        toast({
+          title: "Navigation",
+          description: "Viewing transaction history"
+        });
+        break;
+      case 'setNewGoal':
+        toast({
+          title: "New Goal",
+          description: "Opening goal setting interface"
+        });
+        break;
+      case 'transferFunds':
+        toast({
+          title: "Transfer Funds",
+          description: "Opening fund transfer interface"
+        });
+        break;
+      case 'tryNewFeature':
+        navigate('/forecast');
+        toast({
+          title: "New Feature",
+          description: "Trying out spending predictions"
+        });
+        break;
+    }
     setSelectedNotification(null); // Close dialog after action
   };
 
   const [selectedNotification, setSelectedNotification] = useState<NotificationDetail | null>(null);
   
-  // Load notifications from local storage on mount
-  const [notifications, setNotifications] = useState(() => {
-    const savedNotifications = localStorage.getItem('notifications');
-    if (savedNotifications) {
-      return JSON.parse(savedNotifications);
-    }
-    
-    // Default notifications if none in storage
-    return [
-      {
-        id: 1,
-        title: 'Budget Alert',
-        description: "You've reached 80% of your monthly grocery budget.",
-        time: '10 mins ago',
-        type: 'warning' as const,
-        read: false,
-        actions: {
-          primary: {
-            label: "Adjust Budget",
-            action: handleAdjustBudget
-          },
-          secondary: {
-            label: "View Budget",
-            action: handleViewBudget
-          }
-        },
-        content: (
+  // Create notification content based on type - this shouldn't be stored in localStorage
+  const createNotificationContent = (notification: SerializableNotification): React.ReactNode => {
+    switch (notification.type) {
+      case 'warning':
+        return (
           <div className="space-y-4">
             <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
               <div className="flex items-center gap-3">
@@ -201,22 +195,9 @@ const Notifications: React.FC = () => {
               <p className="text-sm text-gray-500">$60 remaining for the next 8 days</p>
             </div>
           </div>
-        )
-      },
-      {
-        id: 2,
-        title: 'Payment Processed',
-        description: 'Your payment of $45.00 to Netflix has been processed.',
-        time: '2 hours ago',
-        type: 'payment' as const,
-        read: false,
-        actions: {
-          primary: {
-            label: "View Transaction History",
-            action: handleViewTransaction
-          }
-        },
-        content: (
+        );
+      case 'payment':
+        return (
           <div className="space-y-4">
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
               <div className="flex items-center gap-3">
@@ -246,26 +227,9 @@ const Notifications: React.FC = () => {
               </div>
             </div>
           </div>
-        )
-      },
-      {
-        id: 3,
-        title: 'Savings Goal Reached',
-        description: "Congratulations! You've reached your vacation savings goal.",
-        time: '1 day ago',
-        type: 'success' as const,
-        read: true,
-        actions: {
-          primary: {
-            label: "Transfer Funds",
-            action: handleTransferFunds
-          },
-          secondary: {
-            label: "Set New Goal",
-            action: handleSetNewGoal
-          }
-        },
-        content: (
+        );
+      case 'success':
+        return (
           <div className="space-y-4">
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-3">
@@ -284,22 +248,9 @@ const Notifications: React.FC = () => {
               <p className="text-gray-600 mt-1">You've successfully saved $3,000 for your vacation!</p>
             </div>
           </div>
-        )
-      },
-      {
-        id: 4,
-        title: 'New Feature Available',
-        description: 'Check out our new spending predictions feature!',
-        time: '3 days ago',
-        type: 'info' as const,
-        read: true,
-        actions: {
-          primary: {
-            label: "Try It Now",
-            action: handleTryNewFeature
-          }
-        },
-        content: (
+        );
+      case 'info':
+        return (
           <div className="space-y-4">
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center gap-3">
@@ -319,14 +270,120 @@ const Notifications: React.FC = () => {
               </ul>
             </div>
           </div>
-        )
+        );
+      default:
+        return <div>No details available</div>;
+    }
+  };
+  
+  // Load notifications from local storage on mount
+  const [notifications, setNotifications] = useState<NotificationDetail[]>(() => {
+    const savedNotifications = localStorage.getItem('notifications');
+    if (savedNotifications) {
+      try {
+        // Parse the basic notification data
+        const parsedNotifications: SerializableNotification[] = JSON.parse(savedNotifications);
+        
+        // Add the React content to each notification
+        return parsedNotifications.map(notification => ({
+          ...notification,
+          content: createNotificationContent(notification)
+        }));
+      } catch (error) {
+        console.error('Error parsing notifications:', error);
+        return getDefaultNotifications();
+      }
+    }
+    
+    // Return default notifications if none in storage
+    return getDefaultNotifications();
+  });
+  
+  // Generate default notifications
+  function getDefaultNotifications(): NotificationDetail[] {
+    const defaultSerializableNotifications: SerializableNotification[] = [
+      {
+        id: 1,
+        title: 'Budget Alert',
+        description: "You've reached 80% of your monthly grocery budget.",
+        time: '10 mins ago',
+        type: 'warning',
+        read: false,
+        actions: {
+          primary: {
+            label: "Adjust Budget",
+            action: "adjustBudget"
+          },
+          secondary: {
+            label: "View Budget",
+            action: "viewBudget"
+          }
+        }
+      },
+      {
+        id: 2,
+        title: 'Payment Processed',
+        description: 'Your payment of $45.00 to Netflix has been processed.',
+        time: '2 hours ago',
+        type: 'payment',
+        read: false,
+        actions: {
+          primary: {
+            label: "View Transaction History",
+            action: "viewTransaction"
+          }
+        }
+      },
+      {
+        id: 3,
+        title: 'Savings Goal Reached',
+        description: "Congratulations! You've reached your vacation savings goal.",
+        time: '1 day ago',
+        type: 'success',
+        read: true,
+        actions: {
+          primary: {
+            label: "Transfer Funds",
+            action: "transferFunds"
+          },
+          secondary: {
+            label: "Set New Goal",
+            action: "setNewGoal"
+          }
+        }
+      },
+      {
+        id: 4,
+        title: 'New Feature Available',
+        description: 'Check out our new spending predictions feature!',
+        time: '3 days ago',
+        type: 'info',
+        read: true,
+        actions: {
+          primary: {
+            label: "Try It Now",
+            action: "tryNewFeature"
+          }
+        }
       }
     ];
-  });
+    
+    // Add the content to each notification
+    return defaultSerializableNotifications.map(notification => ({
+      ...notification,
+      content: createNotificationContent(notification)
+    }));
+  }
   
   // Save notifications to local storage whenever they change
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+    try {
+      // Strip out the non-serializable content property before storing
+      const serializableNotifications = notifications.map(({ content, ...rest }) => rest);
+      localStorage.setItem('notifications', JSON.stringify(serializableNotifications));
+    } catch (error) {
+      console.error('Error saving notifications to localStorage:', error);
+    }
   }, [notifications]);
   
   const markAllAsRead = () => {
@@ -429,7 +486,7 @@ const Notifications: React.FC = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={selectedNotification.actions.secondary.action}
+                    onClick={() => handleNotificationAction(selectedNotification.actions?.secondary?.action || '')}
                   >
                     {selectedNotification.actions.secondary.label}
                   </Button>
@@ -437,7 +494,7 @@ const Notifications: React.FC = () => {
                 {selectedNotification.actions.primary && (
                   <Button 
                     size="sm"
-                    onClick={selectedNotification.actions.primary.action}
+                    onClick={() => handleNotificationAction(selectedNotification.actions?.primary?.action || '')}
                   >
                     {selectedNotification.actions.primary.label}
                   </Button>
