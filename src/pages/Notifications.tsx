@@ -90,11 +90,11 @@ interface NotificationDetail {
   actions?: {
     primary?: {
       label: string;
-      action: string; // Changed to string identifier
+      action: string;
     };
     secondary?: {
       label: string;
-      action: string; // Changed to string identifier
+      action: string;
     };
   };
 }
@@ -119,11 +119,14 @@ interface SerializableNotification {
   };
 }
 
+// Create a custom event for notification updates
+const notificationEvent = new Event('notificationsUpdated');
+
 const Notifications: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Define action handling function
+  // Define action handling function before useState to avoid the initialization error
   const handleNotificationAction = (actionType: string) => {
     switch (actionType) {
       case 'viewBudget':
@@ -169,7 +172,7 @@ const Notifications: React.FC = () => {
     }
     setSelectedNotification(null); // Close dialog after action
   };
-
+  
   const [selectedNotification, setSelectedNotification] = useState<NotificationDetail | null>(null);
   
   // Create notification content based on type - this shouldn't be stored in localStorage
@@ -278,9 +281,9 @@ const Notifications: React.FC = () => {
   
   // Load notifications from local storage on mount
   const [notifications, setNotifications] = useState<NotificationDetail[]>(() => {
-    const savedNotifications = localStorage.getItem('notifications');
-    if (savedNotifications) {
-      try {
+    try {
+      const savedNotifications = localStorage.getItem('notifications');
+      if (savedNotifications) {
         // Parse the basic notification data
         const parsedNotifications: SerializableNotification[] = JSON.parse(savedNotifications);
         
@@ -289,13 +292,12 @@ const Notifications: React.FC = () => {
           ...notification,
           content: createNotificationContent(notification)
         }));
-      } catch (error) {
-        console.error('Error parsing notifications:', error);
-        return getDefaultNotifications();
       }
+    } catch (error) {
+      console.error('Error parsing notifications:', error);
     }
     
-    // Return default notifications if none in storage
+    // Return default notifications if none in storage or there was an error
     return getDefaultNotifications();
   });
   
@@ -381,6 +383,9 @@ const Notifications: React.FC = () => {
       // Strip out the non-serializable content property before storing
       const serializableNotifications = notifications.map(({ content, ...rest }) => rest);
       localStorage.setItem('notifications', JSON.stringify(serializableNotifications));
+      
+      // Dispatch custom event to notify other components about the notification change
+      window.dispatchEvent(notificationEvent);
     } catch (error) {
       console.error('Error saving notifications to localStorage:', error);
     }

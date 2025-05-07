@@ -24,11 +24,15 @@ const Header: React.FC = () => {
   // Check for unread notifications
   useEffect(() => {
     const checkUnreadNotifications = () => {
-      const savedNotifications = localStorage.getItem('notifications');
-      if (savedNotifications) {
-        const notifications = JSON.parse(savedNotifications);
-        const unread = notifications.some((notification: any) => !notification.read);
-        setHasUnreadNotifications(unread);
+      try {
+        const savedNotifications = localStorage.getItem('notifications');
+        if (savedNotifications) {
+          const notifications = JSON.parse(savedNotifications);
+          const unread = notifications.some((notification: any) => !notification.read);
+          setHasUnreadNotifications(unread);
+        }
+      } catch (error) {
+        console.error('Error checking notifications:', error);
       }
     };
     
@@ -36,17 +40,27 @@ const Header: React.FC = () => {
     checkUnreadNotifications();
     
     // Set up a listener for storage changes
-    const handleStorageChange = () => {
-      checkUnreadNotifications();
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'notifications') {
+        checkUnreadNotifications();
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);
     
-    // Check every 30 seconds (in case notifications are updated in another component)
-    const interval = setInterval(checkUnreadNotifications, 30000);
+    // Create a custom event listener for notification updates within the same window
+    const handleCustomNotificationChange = () => {
+      checkUnreadNotifications();
+    };
+    
+    window.addEventListener('notificationsUpdated', handleCustomNotificationChange);
+    
+    // Check every 5 seconds (in case notifications are updated in another component)
+    const interval = setInterval(checkUnreadNotifications, 5000);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('notificationsUpdated', handleCustomNotificationChange);
       clearInterval(interval);
     };
   }, []);
