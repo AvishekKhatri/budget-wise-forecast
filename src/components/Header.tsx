@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, Settings, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -19,6 +19,37 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userProfile, logout, isLoggedIn } = useUser();
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+  
+  // Check for unread notifications
+  useEffect(() => {
+    const checkUnreadNotifications = () => {
+      const savedNotifications = localStorage.getItem('notifications');
+      if (savedNotifications) {
+        const notifications = JSON.parse(savedNotifications);
+        const unread = notifications.some((notification: any) => !notification.read);
+        setHasUnreadNotifications(unread);
+      }
+    };
+    
+    // Check on mount
+    checkUnreadNotifications();
+    
+    // Set up a listener for storage changes
+    const handleStorageChange = () => {
+      checkUnreadNotifications();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check every 30 seconds (in case notifications are updated in another component)
+    const interval = setInterval(checkUnreadNotifications, 30000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleLogout = () => {
     // Perform logout
@@ -40,8 +71,8 @@ const Header: React.FC = () => {
   }
   
   return (
-    <header className="flex justify-between items-center px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-10">
-      <h1 className="text-xl md:text-2xl font-bold text-finance-purple">
+    <header className="flex justify-between items-center px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-10 dark:bg-gray-800 dark:border-gray-700">
+      <h1 className="text-xl md:text-2xl font-bold text-finance-purple dark:text-finance-purple-light">
         <span className="hidden md:inline">BudgetWise</span>
         <span className="md:hidden">BW</span>
       </h1>
@@ -50,7 +81,9 @@ const Header: React.FC = () => {
         <Button variant="ghost" size="icon" className="relative" asChild>
           <Link to="/notifications">
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            {hasUnreadNotifications && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            )}
           </Link>
         </Button>
         
