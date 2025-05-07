@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -22,13 +23,38 @@ const AuthPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, updateUserProfile } = useUser();
 
+  // Check for saved credentials on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('auth_email');
+    const savedPassword = localStorage.getItem('auth_password');
+    
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+    
+    if (savedPassword) {
+      setPassword(savedPassword);
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Save credentials if remember me is checked
+    if (rememberMe) {
+      localStorage.setItem('auth_email', email);
+      localStorage.setItem('auth_password', password);
+    } else {
+      localStorage.removeItem('auth_email');
+      localStorage.removeItem('auth_password');
+    }
 
     // Simulate authentication
     setTimeout(() => {
@@ -48,7 +74,7 @@ const AuthPage: React.FC = () => {
           ? "Welcome back to BudgetWise!" 
           : "Your account has been created successfully."
       });
-      navigate('/profile'); // Navigate to profile page after login/signup
+      navigate('/'); // Navigate to dashboard (index page) after login/signup
     }, 1000);
   };
 
@@ -140,6 +166,20 @@ const AuthPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="remember" 
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                />
+                <Label 
+                  htmlFor="remember" 
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Remember my credentials
+                </Label>
               </div>
             </form>
           </CardContent>

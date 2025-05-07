@@ -20,12 +20,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   
-  // Redirect to profile after login if coming from AuthPage
-  useEffect(() => {
-    if (isLoggedIn && location.pathname === '/') {
-      navigate('/profile');
-    }
-  }, [isLoggedIn, location.pathname, navigate]);
+  // No need to redirect to profile after login anymore
+  // Users will be redirected directly to dashboard from AuthPage
   
   // Close sidebar on mobile when route changes
   useEffect(() => {
