@@ -100,6 +100,60 @@ interface NotificationDetail {
 const Notifications: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Define these functions BEFORE they're used in the initial state
+  const handleViewBudget = () => {
+    navigate('/budgets');
+    toast({
+      title: "Navigation",
+      description: "Navigating to budget page"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleAdjustBudget = () => {
+    navigate('/budgets');
+    toast({
+      title: "Adjust Budget",
+      description: "Opening budget adjustment interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleViewTransaction = () => {
+    navigate('/transactions');
+    toast({
+      title: "Navigation",
+      description: "Viewing transaction history"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleSetNewGoal = () => {
+    toast({
+      title: "New Goal",
+      description: "Opening goal setting interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleTransferFunds = () => {
+    toast({
+      title: "Transfer Funds",
+      description: "Opening fund transfer interface"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+  
+  const handleTryNewFeature = () => {
+    navigate('/forecast');
+    toast({
+      title: "New Feature",
+      description: "Trying out spending predictions"
+    });
+    setSelectedNotification(null); // Close dialog after action
+  };
+
   const [selectedNotification, setSelectedNotification] = useState<NotificationDetail | null>(null);
   
   // Load notifications from local storage on mount
@@ -274,59 +328,6 @@ const Notifications: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('notifications', JSON.stringify(notifications));
   }, [notifications]);
-  
-  // Actions for notification buttons
-  const handleViewBudget = () => {
-    navigate('/budgets');
-    toast({
-      title: "Navigation",
-      description: "Navigating to budget page"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleAdjustBudget = () => {
-    navigate('/budgets');
-    toast({
-      title: "Adjust Budget",
-      description: "Opening budget adjustment interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleViewTransaction = () => {
-    navigate('/transactions');
-    toast({
-      title: "Navigation",
-      description: "Viewing transaction history"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleSetNewGoal = () => {
-    toast({
-      title: "New Goal",
-      description: "Opening goal setting interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleTransferFunds = () => {
-    toast({
-      title: "Transfer Funds",
-      description: "Opening fund transfer interface"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
-  
-  const handleTryNewFeature = () => {
-    navigate('/forecast');
-    toast({
-      title: "New Feature",
-      description: "Trying out spending predictions"
-    });
-    setSelectedNotification(null); // Close dialog after action
-  };
   
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
