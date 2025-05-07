@@ -7,18 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/contexts/UserContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Settings: React.FC = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const { userProfile, updateUserProfile } = useUser();
+  const { theme, setTheme } = useTheme();
   
-  // State for settings, initialized with userProfile values
+  // State for settings, initialized with userProfile values and theme
   const [settings, setSettings] = useState({
     emailNotifications: userProfile.emailNotifications,
     appNotifications: true,
     weeklyReports: false,
-    darkMode: false
+    darkMode: theme === 'dark'
   });
   
   // Update settings when userProfile changes
@@ -26,15 +28,25 @@ const Settings: React.FC = () => {
     setSettings(prevSettings => ({
       ...prevSettings,
       emailNotifications: userProfile.emailNotifications,
-      appNotifications: true // Assuming we don't have this in userProfile yet
+      appNotifications: true, // Assuming we don't have this in userProfile yet
+      darkMode: theme === 'dark'
     }));
-  }, [userProfile]);
+  }, [userProfile, theme]);
   
   const handleToggle = (setting: keyof typeof settings) => {
-    setSettings(prev => ({
-      ...prev,
-      [setting]: !prev[setting]
-    }));
+    setSettings(prev => {
+      const newSettings = {
+        ...prev,
+        [setting]: !prev[setting]
+      };
+      
+      // Immediately update theme when darkMode is toggled
+      if (setting === 'darkMode') {
+        setTheme(newSettings.darkMode ? 'dark' : 'light');
+      }
+      
+      return newSettings;
+    });
   };
   
   const handleSaveSettings = () => {

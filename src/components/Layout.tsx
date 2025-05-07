@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { isLoggedIn } = useUser();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   
   // Redirect to profile after login if coming from AuthPage
   useEffect(() => {
@@ -57,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
   
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className={`flex h-screen ${theme === 'dark' ? 'dark' : ''} bg-gray-50 dark:bg-gray-900`}>
       {/* Sidebar - hidden on mobile by default */}
       <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block fixed md:relative z-20 h-full transition-all duration-300`}>
         <Sidebar />
@@ -84,7 +86,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         {/* Main scrollable content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-900">
           {children}
         </main>
       </div>
