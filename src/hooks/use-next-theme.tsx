@@ -1,9 +1,9 @@
 
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme as useThemeContext } from '@/contexts/ThemeContext';
 
 // This hook provides compatibility with libraries expecting next-themes
 export function useTheme() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useThemeContext();
   
   return {
     theme,
