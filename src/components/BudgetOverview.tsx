@@ -25,18 +25,40 @@ const BudgetOverview: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<CategoryBudget | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<BudgetCategory[]>([]);
   
   // Load budgets
   useEffect(() => {
-    const loadedBudgets = getBudgets();
-    setBudgets(loadedBudgets);
+    const loadBudgets = () => {
+      const loadedBudgets = getBudgets();
+      setBudgets(loadedBudgets);
+      
+      // Update available categories whenever budgets change
+      updateAvailableCategories(loadedBudgets);
+    };
+    
+    loadBudgets();
   }, []);
+  
+  // Update available categories for new budgets
+  const updateAvailableCategories = (currentBudgets: CategoryBudget[]) => {
+    const allCategories: BudgetCategory[] = [
+      'groceries', 'restaurants', 'transportation', 'utilities', 
+      'entertainment', 'shopping', 'travel', 'health'
+    ];
+    
+    const existingCategories = new Set(currentBudgets.map(b => b.category));
+    setAvailableCategories(allCategories.filter(category => !existingCategories.has(category)));
+  };
   
   // Handle add budget
   const handleAddBudget = (formValues: BudgetFormValues) => {
     const newBudget = setCategory(formValues.category, formValues.budgeted);
+    const updatedBudgets = getBudgets();
     
-    setBudgets(getBudgets());
+    setBudgets(updatedBudgets);
+    updateAvailableCategories(updatedBudgets);
+    
     setIsAddDialogOpen(false);
   };
   
@@ -45,7 +67,10 @@ const BudgetOverview: React.FC = () => {
     if (!selectedBudget) return;
     
     setCategory(formValues.category, formValues.budgeted);
-    setBudgets(getBudgets());
+    const updatedBudgets = getBudgets();
+    
+    setBudgets(updatedBudgets);
+    updateAvailableCategories(updatedBudgets);
     
     setIsEditDialogOpen(false);
     setSelectedBudget(null);
@@ -58,7 +83,9 @@ const BudgetOverview: React.FC = () => {
     const success = deleteBudget(selectedBudget.category);
     
     if (success) {
-      setBudgets(getBudgets());
+      const updatedBudgets = getBudgets();
+      setBudgets(updatedBudgets);
+      updateAvailableCategories(updatedBudgets);
     }
     
     setIsDeleteDialogOpen(false);
@@ -76,20 +103,7 @@ const BudgetOverview: React.FC = () => {
     setSelectedBudget(budget);
     setIsDeleteDialogOpen(true);
   };
-  
-  // Check if a category already has a budget
-  const getAvailableCategories = (): BudgetCategory[] => {
-    const allCategories: BudgetCategory[] = [
-      'groceries', 'restaurants', 'transportation', 'utilities', 
-      'entertainment', 'shopping', 'travel', 'health'
-    ];
-    
-    const existingCategories = new Set(budgets.map(b => b.category));
-    return allCategories.filter(category => !existingCategories.has(category));
-  };
-  
-  const availableCategories = getAvailableCategories();
-  
+
   return (
     <Card className="animate-fade-in">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -197,6 +211,7 @@ const BudgetOverview: React.FC = () => {
           <BudgetForm 
             onSubmit={handleAddBudget} 
             onCancel={() => setIsAddDialogOpen(false)}
+            availableCategories={availableCategories}
           />
         </DialogContent>
       </Dialog>

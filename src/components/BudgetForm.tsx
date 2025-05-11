@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PiggyBank, Edit } from "lucide-react";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 
 // Define schema for budget form
 const budgetSchema = z.object({
@@ -50,19 +50,22 @@ interface BudgetFormProps {
   onSubmit: (values: BudgetFormValues) => void;
   onCancel?: () => void;
   isEditing?: boolean;
+  availableCategories?: BudgetCategory[];
 }
 
 const BudgetForm: React.FC<BudgetFormProps> = ({
   defaultValues,
   onSubmit,
   onCancel,
-  isEditing = false
+  isEditing = false,
+  availableCategories
 }) => {
-  const { toast } = useToast();
   const form = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetSchema),
     defaultValues: defaultValues || {
-      category: "groceries",
+      category: availableCategories && availableCategories.length > 0 
+        ? availableCategories[0] 
+        : "groceries",
       budgeted: 500,
     }
   });
@@ -71,13 +74,20 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     onSubmit(values);
     form.reset();
     
-    toast({
-      title: isEditing ? "Budget Updated" : "Budget Added",
+    toast(isEditing ? "Budget Updated" : "Budget Added", {
       description: isEditing 
         ? "Your budget has been updated successfully." 
-        : "Your new budget has been added successfully."
+        : "Your new budget has been added successfully.",
     });
   };
+
+  // Determine which categories to show in the select
+  const categoriesToShow = isEditing 
+    ? [defaultValues?.category as BudgetCategory] 
+    : availableCategories || [
+        'groceries', 'restaurants', 'transportation', 'utilities', 
+        'entertainment', 'shopping', 'travel', 'health'
+      ];
 
   return (
     <Form {...form}>
@@ -91,6 +101,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
+                disabled={isEditing} // Disable category selection when editing
               >
                 <FormControl>
                   <SelectTrigger>
@@ -98,14 +109,11 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="groceries">Groceries</SelectItem>
-                  <SelectItem value="restaurants">Restaurants</SelectItem>
-                  <SelectItem value="transportation">Transportation</SelectItem>
-                  <SelectItem value="utilities">Utilities</SelectItem>
-                  <SelectItem value="entertainment">Entertainment</SelectItem>
-                  <SelectItem value="shopping">Shopping</SelectItem>
-                  <SelectItem value="travel">Travel</SelectItem>
-                  <SelectItem value="health">Health</SelectItem>
+                  {categoriesToShow.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
