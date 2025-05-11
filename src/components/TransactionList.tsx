@@ -1,16 +1,46 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, ArrowUpDown } from 'lucide-react';
-import { transactions, Transaction, categoryColors, TransactionCategory } from '@/utils/dummyData';
+import { Search, Filter, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { Transaction, categoryColors, TransactionCategory } from '@/utils/dummyData';
 import { cn } from '@/lib/utils';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { 
+  getTransactions, 
+  saveTransactions, 
+  addTransaction, 
+  updateTransaction, 
+  deleteTransaction 
+} from '@/services/financeService';
+import TransactionForm, { TransactionFormValues } from './TransactionForm';
 
 const TransactionList: React.FC = () => {
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>(transactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<TransactionCategory | 'all'>('all');
+  
+  // Dialog states
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  
+  // Load transactions
+  useEffect(() => {
+    const loadedTransactions = getTransactions();
+    setTransactions(loadedTransactions);
+    setFilteredTransactions(loadedTransactions);
+  }, []);
   
   // Format date from YYYY-MM-DD to more readable format
   const formatDate = (dateString: string) => {
@@ -70,6 +100,91 @@ const TransactionList: React.FC = () => {
     setFilteredTransactions(results);
   };
   
+  // Handle add transaction
+  const handleAddTransaction = (formValues: TransactionFormValues) => {
+    const newTransaction = addTransaction(
+      formValues.merchant,
+      formValues.description,
+      formValues.amount,
+      formValues.category,
+      formValues.date
+    );
+    
+    setTransactions(getTransactions());
+    setFilteredTransactions(prevFiltered => [newTransaction, ...prevFiltered]);
+    setIsAddDialogOpen(false);
+  };
+  
+  // Handle edit transaction
+  const handleEditTransaction = (formValues: TransactionFormValues) => {
+    if (!selectedTransaction) return;
+    
+    const updated = updateTransaction(selectedTransaction.id, {
+      merchant: formValues.merchant,
+      description: formValues.description,
+      amount: formValues.amount,
+      category: formValues.category,
+      date: formValues.date
+    });
+    
+    if (updated) {
+      const updatedTransactions = getTransactions();
+      setTransactions(updatedTransactions);
+      
+      // Re-apply current filters
+      if (activeFilter === 'all') {
+        if (searchTerm.trim() === '') {
+          setFilteredTransactions(updatedTransactions);
+        } else {
+          handleSearch({ target: { value: searchTerm } } as React.ChangeEvent<HTMLInputElement>);
+        }
+      } else {
+        handleFilterChange(activeFilter);
+      }
+    }
+    
+    setIsEditDialogOpen(false);
+    setSelectedTransaction(null);
+  };
+  
+  // Handle delete transaction
+  const handleDeleteTransaction = () => {
+    if (!selectedTransaction) return;
+    
+    const success = deleteTransaction(selectedTransaction.id);
+    
+    if (success) {
+      const updatedTransactions = getTransactions();
+      setTransactions(updatedTransactions);
+      
+      // Re-apply current filters
+      if (activeFilter === 'all') {
+        if (searchTerm.trim() === '') {
+          setFilteredTransactions(updatedTransactions);
+        } else {
+          handleSearch({ target: { value: searchTerm } } as React.ChangeEvent<HTMLInputElement>);
+        }
+      } else {
+        handleFilterChange(activeFilter);
+      }
+    }
+    
+    setIsDeleteDialogOpen(false);
+    setSelectedTransaction(null);
+  };
+  
+  // Open edit dialog
+  const openEditDialog = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsEditDialogOpen(true);
+  };
+  
+  // Open delete dialog
+  const openDeleteDialog = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsDeleteDialogOpen(true);
+  };
+  
   // Get the unique categories from transactions
   const categories = Array.from(
     new Set(transactions.map(t => t.category))
@@ -77,9 +192,15 @@ const TransactionList: React.FC = () => {
   
   return (
     <Card className="animate-fade-in">
-      <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>A list of your recent transactions</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Recent Transactions</CardTitle>
+          <CardDescription>A list of your recent transactions</CardDescription>
+        </div>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Transaction
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -122,10 +243,11 @@ const TransactionList: React.FC = () => {
           <div className="rounded-md border">
             <div className="bg-muted/50 p-2 grid grid-cols-12 gap-4 text-xs font-medium">
               <div className="col-span-2 md:col-span-1">Date</div>
-              <div className="col-span-4 md:col-span-4">Description</div>
+              <div className="col-span-4 md:col-span-3">Description</div>
               <div className="hidden md:block md:col-span-3">Category</div>
               <div className="col-span-3 md:col-span-2">Amount</div>
               <div className="col-span-3 md:col-span-2">Balance</div>
+              <div className="hidden md:block md:col-span-1">Actions</div>
             </div>
             
             <div className="divide-y">
@@ -139,12 +261,12 @@ const TransactionList: React.FC = () => {
                     <div className="col-span-2 md:col-span-1 text-xs">
                       {formatDate(transaction.date)}
                     </div>
-                    <div className="col-span-4 md:col-span-4 truncate">
+                    <div className="col-span-4 md:col-span-3 truncate">
                       <div className="font-medium">{transaction.merchant}</div>
                       <div className="text-xs text-muted-foreground truncate">{transaction.description}</div>
                     </div>
                     <div className="hidden md:block md:col-span-3">
-                      <span className={cn("category-badge", bg, text)}>
+                      <span className={cn("px-2 py-1 rounded-full text-xs", bg, text)}>
                         {transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1)}
                       </span>
                     </div>
@@ -156,6 +278,26 @@ const TransactionList: React.FC = () => {
                     </div>
                     <div className="col-span-3 md:col-span-2 text-sm">
                       ${(3254.67 + transaction.amount).toFixed(2)}
+                    </div>
+                    <div className="hidden md:flex md:col-span-1 gap-2 justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => openEditDialog(transaction)}
+                        className="h-8 w-8"
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => openDeleteDialog(transaction)}
+                        className="h-8 w-8 text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
                     </div>
                   </div>
                 );
@@ -170,12 +312,106 @@ const TransactionList: React.FC = () => {
           </div>
           
           <div className="flex justify-center">
-            <Button variant="outline" className="w-full md:w-auto">
+            <Button 
+              variant="outline" 
+              className="w-full md:w-auto"
+              onClick={() => window.location.href = '/transactions'}
+            >
               View All Transactions
             </Button>
           </div>
         </div>
       </CardContent>
+      
+      {/* Add Transaction Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Transaction</DialogTitle>
+            <DialogDescription>
+              Enter the details for your new transaction.
+            </DialogDescription>
+          </DialogHeader>
+          <TransactionForm 
+            onSubmit={handleAddTransaction} 
+            onCancel={() => setIsAddDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Transaction Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogDescription>
+              Update the details of your transaction.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTransaction && (
+            <TransactionForm 
+              defaultValues={{
+                merchant: selectedTransaction.merchant,
+                description: selectedTransaction.description,
+                amount: selectedTransaction.amount,
+                category: selectedTransaction.category,
+                date: selectedTransaction.date,
+              }}
+              onSubmit={handleEditTransaction}
+              onCancel={() => setIsEditDialogOpen(false)}
+              isEditing
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Transaction Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTransaction && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Merchant</p>
+                  <p>{selectedTransaction.merchant}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Amount</p>
+                  <p className={selectedTransaction.amount > 0 ? "text-finance-green" : "text-finance-red"}>
+                    {selectedTransaction.amount > 0 ? '+' : ''}{selectedTransaction.amount.toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Date</p>
+                  <p>{formatDate(selectedTransaction.date)}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Category</p>
+                  <p className="capitalize">{selectedTransaction.category}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm font-medium text-muted-foreground">Description</p>
+                  <p>{selectedTransaction.description}</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteTransaction}>
+                  Delete Transaction
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
