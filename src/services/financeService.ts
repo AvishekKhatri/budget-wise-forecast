@@ -1,5 +1,5 @@
 
-import { Transaction, TransactionCategory, BudgetCategory, generateId } from '@/utils/dummyData';
+import { Transaction, TransactionCategory, BudgetCategory, generateId, budgetData, transactions } from '@/utils/dummyData';
 import { toast } from "sonner";
 
 export interface CategoryBudget {
@@ -15,12 +15,10 @@ export const getTransactions = (): Transaction[] => {
     if (savedTransactions) {
       return JSON.parse(savedTransactions);
     }
-    // Use the transactions from dummyData if none exist in localStorage
-    const { transactions } = require('@/utils/dummyData');
+    // Use the transactions from dummyData.ts as default
     return transactions;
   } catch (error) {
     console.error('Error loading transactions:', error);
-    const { transactions } = require('@/utils/dummyData');
     return transactions;
   }
 };
@@ -32,12 +30,10 @@ export const getBudgets = (): CategoryBudget[] => {
     if (savedBudgets) {
       return JSON.parse(savedBudgets);
     }
-    // Use the budgetData from dummyData if none exist in localStorage
-    const { budgetData } = require('@/utils/dummyData');
+    // Use the budgetData from dummyData.ts as default
     return budgetData;
   } catch (error) {
     console.error('Error loading budgets:', error);
-    const { budgetData } = require('@/utils/dummyData');
     return budgetData;
   }
 };
