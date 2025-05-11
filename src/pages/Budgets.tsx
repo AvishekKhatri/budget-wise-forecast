@@ -52,7 +52,8 @@ const Budgets: React.FC = () => {
     };
     
     loadBudgets();
-  }, []);
+    // We need to refresh this whenever dialogs open/close
+  }, [isAddDialogOpen, isEditDialogOpen, isDeleteDialogOpen]);
   
   // Update available categories
   const updateAvailableCategories = (currentBudgets: CategoryBudget[]) => {
@@ -62,7 +63,8 @@ const Budgets: React.FC = () => {
     ];
     
     const existingCategories = new Set(currentBudgets.map(b => b.category));
-    setAvailableCategories(allCategories.filter(category => !existingCategories.has(category)));
+    const available = allCategories.filter(category => !existingCategories.has(category));
+    setAvailableCategories(available);
   };
   
   // Handle add budget

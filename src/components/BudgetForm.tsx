@@ -72,13 +72,17 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   const handleSubmit = (values: BudgetFormValues) => {
     onSubmit(values);
-    form.reset();
     
     toast(isEditing ? "Budget Updated" : "Budget Added", {
       description: isEditing 
         ? "Your budget has been updated successfully." 
         : "Your new budget has been added successfully.",
     });
+    
+    // Only reset the form if not editing
+    if (!isEditing) {
+      form.reset();
+    }
   };
 
   // Determine which categories to show in the select

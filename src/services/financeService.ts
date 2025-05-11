@@ -145,9 +145,11 @@ export const setCategory = (category: BudgetCategory, budgeted: number): Categor
     });
   }
   
-  // Calculate current spent amount
+  // Update with current spend amounts and save
+  saveBudgets(budgets);
   updateBudgetSpent();
   
+  // Return the added/updated budget
   return budgets.find(b => b.category === category)!;
 };
 
