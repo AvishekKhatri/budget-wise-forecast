@@ -1,9 +1,9 @@
 
-import { Transaction, TransactionCategory, generateId } from '@/utils/dummyData';
+import { Transaction, TransactionCategory, BudgetCategory, generateId } from '@/utils/dummyData';
 import { toast } from "sonner";
 
 export interface CategoryBudget {
-  category: TransactionCategory;
+  category: BudgetCategory;
   budgeted: number;
   spent: number;
 }
@@ -135,7 +135,7 @@ export const deleteTransaction = (id: string): boolean => {
 };
 
 // Add or update a budget
-export const setCategory = (category: TransactionCategory, budgeted: number): CategoryBudget => {
+export const setCategory = (category: BudgetCategory, budgeted: number): CategoryBudget => {
   const budgets = getBudgets();
   const existingIndex = budgets.findIndex(b => b.category === category);
   
@@ -156,7 +156,7 @@ export const setCategory = (category: TransactionCategory, budgeted: number): Ca
 };
 
 // Delete a budget
-export const deleteBudget = (category: TransactionCategory): boolean => {
+export const deleteBudget = (category: BudgetCategory): boolean => {
   const budgets = getBudgets();
   const filteredBudgets = budgets.filter(b => b.category !== category);
   
@@ -184,6 +184,9 @@ export const updateBudgetSpent = (): void => {
   
   // Group transactions by category and sum amounts
   expenses.forEach(transaction => {
+    // Skip "income" category which is not a budget category
+    if (transaction.category === 'income') return;
+    
     const budget = budgets.find(b => b.category === transaction.category);
     if (budget) {
       budget.spent += Math.abs(transaction.amount);

@@ -11,6 +11,17 @@ export type TransactionCategory =
   | 'health'
   | 'income';
 
+// Separate type for budget categories (excludes 'income')
+export type BudgetCategory =
+  | 'groceries' 
+  | 'restaurants' 
+  | 'transportation' 
+  | 'utilities' 
+  | 'entertainment' 
+  | 'shopping' 
+  | 'travel'
+  | 'health';
+
 export interface Transaction {
   id: string;
   date: string;
@@ -21,7 +32,7 @@ export interface Transaction {
 }
 
 export interface CategoryBudget {
-  category: TransactionCategory;
+  category: BudgetCategory;
   budgeted: number;
   spent: number;
 }
@@ -32,7 +43,8 @@ export interface MonthlySpending {
 }
 
 // Helper functions
-const generateId = () => Math.random().toString(36).substring(2, 10);
+// Export the generateId function so it can be used in other files
+export const generateId = () => Math.random().toString(36).substring(2, 10);
 
 const getRandomAmount = (min: number, max: number) => {
   return parseFloat((Math.random() * (max - min) + min).toFixed(2));
@@ -116,7 +128,7 @@ export const generateTransactions = (count: number = 50): Transaction[] => {
 
 // Generate monthly budget data
 export const generateBudgetData = (): CategoryBudget[] => {
-  const categories: TransactionCategory[] = [
+  const categories: BudgetCategory[] = [
     'groceries', 'restaurants', 'transportation', 'utilities', 
     'entertainment', 'shopping', 'travel', 'health'
   ];

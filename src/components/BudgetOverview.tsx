@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, Trash2 } from "lucide-react";
-import { categoryColors, TransactionCategory } from '@/utils/dummyData';
+import { categoryColors, BudgetCategory } from '@/utils/dummyData';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -78,8 +78,8 @@ const BudgetOverview: React.FC = () => {
   };
   
   // Check if a category already has a budget
-  const getAvailableCategories = (): TransactionCategory[] => {
-    const allCategories: TransactionCategory[] = [
+  const getAvailableCategories = (): BudgetCategory[] => {
+    const allCategories: BudgetCategory[] = [
       'groceries', 'restaurants', 'transportation', 'utilities', 
       'entertainment', 'shopping', 'travel', 'health'
     ];

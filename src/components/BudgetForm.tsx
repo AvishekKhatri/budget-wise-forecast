@@ -3,7 +3,7 @@ import React from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { TransactionCategory } from '@/utils/dummyData';
+import { BudgetCategory } from '@/utils/dummyData';
 import { 
   Form, 
   FormControl, 
