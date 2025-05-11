@@ -43,6 +43,17 @@ const AuthPage: React.FC = () => {
     }
   }, []);
 
+  // Clear fields when switching tabs
+  const handleTabChange = (tab: 'login' | 'signup') => {
+    setActiveTab(tab);
+    // Clear email and password when switching to signup
+    if (tab === 'signup') {
+      setEmail('');
+      setPassword('');
+      setName('');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -74,6 +85,11 @@ const AuthPage: React.FC = () => {
             email,
           });
         }
+        
+        // Clear fields after signup
+        setEmail('');
+        setPassword('');
+        setName('');
       }
       
       login();
@@ -125,7 +141,7 @@ const AuthPage: React.FC = () => {
               <Button 
                 variant={activeTab === 'login' ? 'default' : 'outline'} 
                 className="flex-1 rounded-r-none"
-                onClick={() => setActiveTab('login')}
+                onClick={() => handleTabChange('login')}
               >
                 <LogIn className="mr-2 h-4 w-4" />
                 Login
@@ -133,7 +149,7 @@ const AuthPage: React.FC = () => {
               <Button 
                 variant={activeTab === 'signup' ? 'default' : 'outline'} 
                 className="flex-1 rounded-l-none"
-                onClick={() => setActiveTab('signup')}
+                onClick={() => handleTabChange('signup')}
               >
                 <UserPlus className="mr-2 h-4 w-4" />
                 Sign Up
