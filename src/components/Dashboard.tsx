@@ -2,9 +2,11 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from '@/components/ui/progress';
-import { ArrowUp, ArrowDown, DollarSign, TrendingUp } from 'lucide-react';
-import { summaryData } from '@/utils/dummyData';
+import { ArrowUp, ArrowDown, DollarSign, TrendingUp, PlusCircle, PiggyBank } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import { calculateSummaryData } from '@/services/financeService';
+import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 
 const StatCard: React.FC<{
   title: string;
@@ -43,13 +45,61 @@ const StatCard: React.FC<{
 };
 
 const Dashboard: React.FC = () => {
-  const { userProfile } = useUser();
+  const { userProfile, isNewUser } = useUser();
+  const summaryData = calculateSummaryData();
+  const navigate = useNavigate();
   const { income, expenses, remaining, averageDailySpend } = summaryData;
   
   // Calculate budget progress
   const budget = parseFloat(income);
   const spent = parseFloat(expenses);
-  const progress = Math.round((spent / budget) * 100);
+  const progress = budget > 0 ? Math.round((spent / budget) * 100) : 0;
+  
+  // If there's no data, show welcome screen for new users
+  const showWelcomeScreen = isNewUser && parseFloat(income) === 0 && parseFloat(expenses) === 0;
+
+  if (showWelcomeScreen) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h1 className="text-2xl font-bold">Welcome to BudgetWise, {userProfile.name.split(' ')[0]}!</h1>
+          <p className="text-muted-foreground">Let's get started with setting up your finances</p>
+        </div>
+        
+        <Card className="p-6">
+          <div className="text-center space-y-6">
+            <div className="mx-auto bg-finance-purple-light w-16 h-16 rounded-full flex items-center justify-center">
+              <PiggyBank className="h-8 w-8 text-finance-purple" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold">No financial data yet</h2>
+              <p className="text-muted-foreground">
+                Start by adding your income, transactions, and setting up budgets
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button 
+                onClick={() => navigate('/transactions')}
+                className="flex items-center justify-center"
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Transactions
+              </Button>
+              <Button 
+                onClick={() => navigate('/budgets')}
+                className="flex items-center justify-center"
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Set Budgets
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6 animate-fade-in">

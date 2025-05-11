@@ -26,7 +26,7 @@ const AuthPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login, updateUserProfile } = useUser();
+  const { login, updateUserProfile, setIsNewUser } = useUser();
 
   // Check for saved credentials on component mount
   useEffect(() => {
@@ -58,12 +58,22 @@ const AuthPage: React.FC = () => {
 
     // Simulate authentication
     setTimeout(() => {
-      // If user is signing up, update their profile info with form data
-      if (activeTab === 'signup' && name && email) {
-        updateUserProfile({
-          name,
-          email,
-        });
+      // If user is signing up, mark as new user and update profile
+      if (activeTab === 'signup') {
+        // Mark as new user
+        setIsNewUser(true);
+        localStorage.removeItem('hasLoggedInBefore');
+        
+        // Clear any existing data for fresh start
+        localStorage.removeItem('transactions');
+        localStorage.removeItem('budgets');
+        
+        if (name && email) {
+          updateUserProfile({
+            name,
+            email,
+          });
+        }
       }
       
       login();

@@ -1,4 +1,3 @@
-
 import { Transaction, TransactionCategory, BudgetCategory, generateId, budgetData, transactions } from '@/utils/dummyData';
 import { toast } from "sonner";
 
@@ -8,33 +7,48 @@ export interface CategoryBudget {
   spent: number;
 }
 
-// Get transactions from localStorage or return default
+// Check if user is new
+const isNewUser = (): boolean => {
+  return localStorage.getItem('hasLoggedInBefore') !== 'true';
+};
+
+// Get transactions from localStorage or return empty array for new users
 export const getTransactions = (): Transaction[] => {
   try {
+    // For new users, return empty array
+    if (isNewUser()) {
+      return [];
+    }
+    
     const savedTransactions = localStorage.getItem('transactions');
     if (savedTransactions) {
       return JSON.parse(savedTransactions);
     }
-    // Use the transactions from dummyData.ts as default
+    // Use the transactions from dummyData.ts as default for existing users
     return transactions;
   } catch (error) {
     console.error('Error loading transactions:', error);
-    return transactions;
+    return [];
   }
 };
 
-// Get budgets from localStorage or return default
+// Get budgets from localStorage or return empty array for new users
 export const getBudgets = (): CategoryBudget[] => {
   try {
+    // For new users, return empty array
+    if (isNewUser()) {
+      return [];
+    }
+    
     const savedBudgets = localStorage.getItem('budgets');
     if (savedBudgets) {
       return JSON.parse(savedBudgets);
     }
-    // Use the budgetData from dummyData.ts as default
+    // Use the budgetData from dummyData.ts as default for existing users
     return budgetData;
   } catch (error) {
     console.error('Error loading budgets:', error);
-    return budgetData;
+    return [];
   }
 };
 
@@ -215,6 +229,16 @@ export const calculateSummaryData = () => {
   
   // Calculate remaining budget
   const remaining = income - expenses;
+  
+  // For new users with no data, provide zero values
+  if (isNewUser() && thisMonthTransactions.length === 0) {
+    return {
+      income: "0.00",
+      expenses: "0.00",
+      remaining: "0.00",
+      averageDailySpend: "0.00"
+    };
+  }
   
   // Calculate daily average spending
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();

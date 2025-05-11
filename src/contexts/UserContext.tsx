@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface UserProfile {
   name: string;
@@ -8,6 +8,7 @@ export interface UserProfile {
   emailNotifications: boolean;
   smsNotifications: boolean;
   initials?: string;
+  isNewUser?: boolean;
 }
 
 interface UserContextType {
@@ -16,6 +17,8 @@ interface UserContextType {
   isLoggedIn: boolean;
   login: () => void;
   logout: () => void;
+  isNewUser: boolean;
+  setIsNewUser: (isNew: boolean) => void;
 }
 
 const defaultUserProfile: UserProfile = {
@@ -32,6 +35,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Start as logged out
+  const [isNewUser, setIsNewUser] = useState<boolean>(false);
+
+  // Check localStorage to see if user has logged in before
+  useEffect(() => {
+    const hasLoggedInBefore = localStorage.getItem('hasLoggedInBefore');
+    setIsNewUser(!hasLoggedInBefore);
+  }, []);
 
   const updateUserProfile = (profile: Partial<UserProfile>) => {
     setUserProfile(prevProfile => {
@@ -50,12 +60,27 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const login = () => setIsLoggedIn(true);
+  const login = () => {
+    setIsLoggedIn(true);
+    // Mark that the user has logged in
+    localStorage.setItem('hasLoggedInBefore', 'true');
+    setIsNewUser(false);
+  };
   
-  const logout = () => setIsLoggedIn(false);
+  const logout = () => {
+    setIsLoggedIn(false);
+  };
 
   return (
-    <UserContext.Provider value={{ userProfile, updateUserProfile, isLoggedIn, login, logout }}>
+    <UserContext.Provider value={{ 
+      userProfile, 
+      updateUserProfile, 
+      isLoggedIn, 
+      login, 
+      logout,
+      isNewUser,
+      setIsNewUser
+    }}>
       {children}
     </UserContext.Provider>
   );
