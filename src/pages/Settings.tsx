@@ -18,7 +18,7 @@ const Settings: React.FC = () => {
   // State for settings, initialized with userProfile values and theme
   const [settings, setSettings] = useState({
     emailNotifications: userProfile.emailNotifications,
-    appNotifications: true,
+    smsNotifications: userProfile.smsNotifications,
     weeklyReports: userProfile.weeklyReports || false,
     darkMode: theme === 'dark'
   });
@@ -28,7 +28,7 @@ const Settings: React.FC = () => {
     setSettings(prevSettings => ({
       ...prevSettings,
       emailNotifications: userProfile.emailNotifications,
-      appNotifications: true, // Assuming we don't have this in userProfile yet
+      smsNotifications: userProfile.smsNotifications,
       weeklyReports: userProfile.weeklyReports || false,
       darkMode: theme === 'dark'
     }));
@@ -56,7 +56,7 @@ const Settings: React.FC = () => {
     // Update user profile with notification settings
     updateUserProfile({
       emailNotifications: settings.emailNotifications,
-      smsNotifications: settings.appNotifications,
+      smsNotifications: settings.smsNotifications,
       weeklyReports: settings.weeklyReports
     });
     
@@ -93,11 +93,11 @@ const Settings: React.FC = () => {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="app-notifications" className="cursor-pointer">App Notifications</Label>
+                <Label htmlFor="sms-notifications" className="cursor-pointer">SMS Notifications</Label>
                 <Switch 
-                  id="app-notifications" 
-                  checked={settings.appNotifications}
-                  onCheckedChange={() => handleToggle('appNotifications')}
+                  id="sms-notifications" 
+                  checked={settings.smsNotifications}
+                  onCheckedChange={() => handleToggle('smsNotifications')}
                 />
               </div>
               <div className="flex items-center justify-between">
