@@ -7,6 +7,7 @@ export interface UserProfile {
   phone: string;
   emailNotifications: boolean;
   smsNotifications: boolean;
+  weeklyReports?: boolean;
   initials?: string;
   isNewUser?: boolean;
 }
@@ -27,6 +28,7 @@ const defaultUserProfile: UserProfile = {
   phone: "(555) 987-6543",
   emailNotifications: true,
   smsNotifications: true,
+  weeklyReports: false,
   initials: "AK"
 };
 

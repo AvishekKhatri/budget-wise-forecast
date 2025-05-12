@@ -19,7 +19,7 @@ const Settings: React.FC = () => {
   const [settings, setSettings] = useState({
     emailNotifications: userProfile.emailNotifications,
     appNotifications: true,
-    weeklyReports: false,
+    weeklyReports: userProfile.weeklyReports || false,
     darkMode: theme === 'dark'
   });
   
@@ -29,6 +29,7 @@ const Settings: React.FC = () => {
       ...prevSettings,
       emailNotifications: userProfile.emailNotifications,
       appNotifications: true, // Assuming we don't have this in userProfile yet
+      weeklyReports: userProfile.weeklyReports || false,
       darkMode: theme === 'dark'
     }));
   }, [userProfile, theme]);
@@ -55,7 +56,8 @@ const Settings: React.FC = () => {
     // Update user profile with notification settings
     updateUserProfile({
       emailNotifications: settings.emailNotifications,
-      smsNotifications: settings.appNotifications
+      smsNotifications: settings.appNotifications,
+      weeklyReports: settings.weeklyReports
     });
     
     // Simulate API call with timeout
